@@ -26,7 +26,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing HTML file'
-                bat 'tidy -q -e index.html'
+                bat 'bat '"C:/Users/Ka/tidy.exe" -q -e index.html'
             }
         }
 
