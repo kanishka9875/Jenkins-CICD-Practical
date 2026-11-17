@@ -3,14 +3,15 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_DIR = 'C:/inetpub/wwwroot'
+        DEPLOY_DIR = 'C:\\inetpub\\wwwroot'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo 'Downloading project from GitHub'
+                echo 'Downloading project from GitHub...'
+
                 git branch: 'main',
                     url: 'https://github.com/kanishka9875/Jenkins-CICD-Practical.git'
             }
@@ -18,25 +19,33 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building the web application'
+                echo 'Building the web project...'
+
                 bat 'dir'
+
+                bat 'if exist index.html (echo HTML found) else (exit /b 1)'
+                bat 'if exist style.css (echo CSS found) else (exit /b 1)'
+                bat 'if exist script.js (echo JS found) else (exit /b 1)'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing HTML file'
-                bat 'bat '"C:/Users/Ka/tidy.exe" -q -e index.html'
+                echo 'Validating HTML using HTML Tidy...'
+
+                bat '"C:/Users/Ka/tidy.exe" -q -e index.html'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying website to IIS'
+                echo 'Deploying website to IIS...'
 
-                bat 'if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"'
+                bat 'if not exist "%DEPLOY_DIR%" exit /b 1'
 
-                bat 'xcopy /Y /I index.html style.css script.js "%DEPLOY_DIR%\\"'
+                bat 'copy /Y index.html "%DEPLOY_DIR%\\index.html"'
+                bat 'copy /Y style.css "%DEPLOY_DIR%\\style.css"'
+                bat 'copy /Y script.js "%DEPLOY_DIR%\\script.js"'
             }
         }
     }
@@ -44,11 +53,10 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
-            echo 'Visit http://localhost'
         }
 
         failure {
-            echo 'Pipeline failed. Check console output.'
+            echo 'Pipeline failed! Check console output.'
         }
     }
 }
